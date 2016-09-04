@@ -17,7 +17,7 @@ RoadMap: a) melhorar o whois do domínio - não funciona com .br; b) não ser bl
 """
 import socket
 import sys
-import whois
+import pythonwhois
 import re
 import validators
 import pprintpp
@@ -25,14 +25,6 @@ import urllib.request
 from bs4 import BeautifulSoup
 from ipwhois import IPWhois
 
-dicsubdominios = {}
-ipsuddominios = {}
-
-try:
-    dominio_analisado = sys.argv[1]
-except IndexError:
-    dominio_analisado = input('Digite a raiz do dominio: ')
-    pass
 
 
 def check_dominio_analisado(dominio_analisado):
@@ -43,13 +35,13 @@ def check_dominio_analisado(dominio_analisado):
         exit()
 
 
-def findservidor(dominio_analisado):
+def findservidor(dominio_analisado, dicsubdominios):
     subdominios = (
         'www',
         'mail',
         'ftp',
         'cpanel',
-        'blog',
+        'blog'
         'direct',
         'direct-connect',
         'admin',
@@ -69,8 +61,8 @@ def findservidor(dominio_analisado):
 
 
 def d_whois(dominio_analisado):
-    w = whois.query(dominio_analisado)
-    print(w)
+    w = pythonwhois.get_whois(dominio_analisado)
+    pprintpp.pprint(w)
 
 
 def ip_whois(dicsubdominios):
@@ -111,59 +103,52 @@ def get_ids(dominio_analisado):
     print('# Códigos de Identificação Localizados #')
     print('########################################')
     try:
-        print('[BR] Google Site Verification Code: %s' % gcode['content'])
+        print('[BR] Google Site Verification Code: {}'.format(gcode['content']))
     except TypeError:
         pass
     try:
         print(
-            '[BR] Microsoft Bing Verification Code: %s' %
-            mscode['content'])
+            '[BR] Microsoft Bing Verification Code:[]'.format(mscode['content']))
     except TypeError:
         pass
     try:
-        print(
-            '[CA] Juicy Ad Code - www.juicyads.com: %s' %
-            juicyadcode['content'])
+        print('[CA] Juicy Ad Code - www.juicyads.com: {}'.format(juicyadcode['content']))
     except TypeError:
         pass
-    print('[BR] Google Analitycs ID: %s' % analitycs_id)
-    print('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
-    print('[BR] Google Ad Sense ID: %s' % ad_sense_id)
+    print('[BR] Google Analitycs ID: {}'.format(analitycs_id))
+    print('[BR] Google Analitycs ID OLD: {}'.format(analitycs_id_old))
+    print('[BR] Google Ad Sense ID: {}'.format(ad_sense_id))
     print('################ FIM ###################\n\n')
     print('#####################')
     print('# Links Encontrados #')
     print('#####################\n')
     links = soup.find_all("a")
     for link in links:
-        print ("%s" % (link.get("href")))
+        print ("{}".format(link.get("href")))
     print('#####################')
-    # analitycs_id = soup.find('GoogleAnalyticsObject')
-    # print (analitycs_id)
 
-    # bsObj = bs4.BeautifulSoup(f.read())
-    # teste = bsObj.head.find_all('script')
-    # analitycs_id = re.finditer(r'\bUA-\d{4,10}-\d{1,4}\b', str(teste))
-
-    # print(f.read().decode('utf-8')
-    # analitycs_id = re.finditer(r'\bUA-\d{4,10}-\d{1,4}\b', f)
-    # print (analitycs_id)
 
 # Programa Principal
 
+def main():
+    dicsubdominios = {}
+    ipsuddominios = {}
 
-check_dominio_analisado(dominio_analisado)
+    if len(sys.argv) > 1:
+        dominio_analisado = sys.argv[1]
+    else:
+        dominio_analisado = input('Digite a raiz do dominio: ')
 
-findservidor(dominio_analisado)
-print("\n \n Servidores Identificados:\n\n")
-print(dicsubdominios)
+    check_dominio_analisado(dominio_analisado)
+    findservidor(dominio_analisado, dicsubdominios)
+    print("\n \n Servidores Identificados:\n\n")
+    print(dicsubdominios)
+    print('\n\nInformações do nome do domínio %s: \n' % dominio_analisado)
+    d_whois(dominio_analisado)
+    print('\n\n')
+    ip_whois(dicsubdominios)
+    print('\n\n')
+    get_ids("http://" + dominio_analisado)
 
-print('\n\nInformações do nome do domínio %s: \n' % dominio_analisado)
-
-d_whois(dominio_analisado)
-print('\n\n')
-
-ip_whois(dicsubdominios)
-
-print('\n\n')
-
-get_ids("http://" + dominio_analisado)
+if __name__ == '__main__':
+    main()
