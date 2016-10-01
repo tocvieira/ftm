@@ -5,14 +5,19 @@ Bem Vindo ao F.T.M - Follow The Money - Versão 0.2 Beta
 Escrito em Python 3
 Autor: Thiago Oliveira Castro Vieira - thiago@thiagovieira.adv.br
 
-O objetivo desse software é reunir informações disponíveis publicamente que possam levar a identificação da autoria de um site.
-Atualmente o software busca pelas seguintes informações: ÍP do servidores do domínio e subdomínios (tentativa e erro); whois do domínio e dos servidores;
-códigos de identificação do Google (Ad Sense, Analitycs e Sites), Bing, Juicy AD (Propaganda em Sites Pornográficos - Canadá); e links
+O objetivo desse software é reunir informações disponíveis publicamente que
+possam levar a identificação da autoria de um site.
+Atualmente o software busca pelas seguintes informações: ÍP do servidores do
+domínio e subdomínios (tentativa e erro); whois do domínio e dos servidores;
+códigos de identificação do Google (Ad Sense, Analitycs e Sites), Bing,
+Juicy AD (Propaganda em Sites Pornográficos - Canadá); e links
 constantes no site.
 
-Modo de Usar: python ftm-02-Beta.py domínio (Caso não informe o domínio na linha de comando, o software perguntará qual o alvo)
+Modo de Usar: python ftm-02-Beta.py domínio (Caso não informe o domínio na
+linha de comando, o software perguntará qual o alvo)
 
-RoadMap: a) melhorar o whois do domínio - não funciona com .br; b) não ser bloqueado pelo CloudFlare; c) Exportar um relatório em PDF.
+RoadMap: a) melhorar o whois do domínio - não funciona com .br; b) não ser
+bloqueado pelo CloudFlare; c) Exportar um relatório em PDF.
 
 """
 import socket
@@ -26,6 +31,7 @@ from bs4 import BeautifulSoup
 from ipwhois import IPWhois
 from time import ctime
 from ntplib import NTPClient, NTPException
+
 
 def ntp_time(servers):
     """
@@ -70,9 +76,11 @@ def findservidor(dominio_analisado, dicsubdominios):
         'smtp')
     for subs in subdominios:
         try:
-            print('{} : {}'.format (subs, socket.gethostbyname(subs + '.' + dominio_analisado)))
+            print('{} : {}'.format(subs, socket.gethostbyname(
+                subs + '.' + dominio_analisado)))
             #print(subs) + (": ") +  socket.gethostbyname(subs + '.' + dominio_analisado)
-            dicsubdominios[subs] = socket.gethostbyname(subs + '.' + dominio_analisado)
+            dicsubdominios[subs] = socket.gethostbyname(
+                subs + '.' + dominio_analisado)
         except socket.gaierror:
             pass
            # print("Erro: " + subs + '.' + dominio_analisado + " não responde")
@@ -92,7 +100,7 @@ def d_whois(dominio_analisado):
     tab_contato.add_rows(contato_list)
     tab_contato.set_cols_align(['c', 'c'])
     tab_contato.header(['Contato', dominio_analisado])
-    print (tab_contato.draw())
+    print(tab_contato.draw())
 
     print('\n')
 
@@ -122,12 +130,13 @@ def d_whois(dominio_analisado):
     tab_tech.header(['Resp. Técnico', dominio_analisado])
     print(tab_tech.draw())
 
-    print('\nOutras Informações \nData de Criação: {}'.format(whois['creation_date']))
+    print('\nOutras Informações \nData de Criação: {}'.format(
+        whois['creation_date']))
     print('Data de Expiração: {}'.format(whois['expiration_date']))
     print('Name Servers: {}'.format(whois['nameservers']))
     print('Registrar: {}'.format(whois['registrar']))
     print('Status: {}'.format(whois['status']))
-    print ('Servidor de WHOIS: {}'.format(whois['whois_server']))
+    print('Servidor de WHOIS: {}'.format(whois['whois_server']))
 
     if 'CLOUDFLARE' in whois['nameservers'][0]:
         cdn = True
@@ -206,7 +215,7 @@ def get_ids(dominio_analisado):
     print('#####################\n')
     links = soup.find_all("a")
     for link in links:
-        print ("{}".format(link.get("href")))
+        print("{}".format(link.get("href")))
     print('#####################')
 
 
@@ -214,31 +223,32 @@ def get_ids(dominio_analisado):
 
 def main():
 
-    ntpservs = ['a.st1.ntp.br', ' b.st1.ntp.br', ' c.st1.ntp.br', 'd.st1.ntp.br']
+    ntpservs = ['a.st1.ntp.br', ' b.st1.ntp.br',
+                ' c.st1.ntp.br', 'd.st1.ntp.br']
 
-    """ Verifica se o argumento essencial, o nome de domínio, foi informado na execução.
-    Caso contrário solicita ao usuário que informe"""
+    '''
+    Verifica se o argumento essencial, o nome de domínio, foi informado na
+    execução. Caso contrário solicita ao usuário que informe
+    '''
 
     if len(sys.argv) > 1:
         dominio_analisado = sys.argv[1]
     else:
         dominio_analisado = input('Digite a raiz do dominio: ')
 
-
     print('#########################################################')
     print('# RELATÓRIO - ANALISE DO DOMÍNIO: {}                    #'.format(dominio_analisado))
     print('# FTM - Version 0.1                                     #')
     print('#########################################################')
 
-
     print('\n\nVerificação das Informações existentes e publicamente disponíveis acerca do\n'
-       'domínio {}, com a finalidade de identificar elementos que possam\n'
-       'levar a identificação da autoria, tais como: responsável pelo registro do nome\n'
-       'de domínio, empresa responsável pela hospedagem e códigos de identificação únicos\n '
-       'de serviços agregados ao site. Relatório gerado pelo software Follow to The Money - FTM,\n'
-       'com informações publicamente disponíveis na rede mundial de computadores acerca\n'
-       'do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido\n'
-       'em Python 3.5, com código fonte disponível em http://github.com/XXXXXX'. format(dominio_analisado))
+          'domínio {}, com a finalidade de identificar elementos que possam\n'
+          'levar a identificação da autoria, tais como: responsável pelo registro do nome\n'
+          'de domínio, empresa responsável pela hospedagem e códigos de identificação únicos\n '
+          'de serviços agregados ao site. Relatório gerado pelo software Follow to The Money - FTM,\n'
+          'com informações publicamente disponíveis na rede mundial de computadores acerca\n'
+          'do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido\n'
+          'em Python 3.5, com código fonte disponível em http://github.com/XXXXXX'. format(dominio_analisado))
 
     print('\n')
     check_dominio_analisado(dominio_analisado)
@@ -250,20 +260,20 @@ def main():
     dicsubdominios = {}
     ipsuddominios = {}
 
-
     print("\n \n Servidores Identificados:\n\n")
     findservidor(dominio_analisado, dicsubdominios)
 
     print('\n\nInformações do nome do domínio {}: \n'.format(dominio_analisado))
     cdn = d_whois(dominio_analisado)
     if cdn == True:
-        print ('\n\nATENÇÃO! O NAME SERVER indica a utilização de uma Rede de Fornecimento de Conteúdo (Content Delivery Network – CDN)')
+        print('\n\nATENÇÃO! O NAME SERVER indica a utilização de uma Rede de Fornecimento de Conteúdo (Content Delivery Network – CDN)')
     else:
         pass
     print('\n\n')
     ip_whois(dicsubdominios)
     print('\n\n')
     get_ids("http://" + dominio_analisado)
+
 
 if __name__ == '__main__':
     main()
