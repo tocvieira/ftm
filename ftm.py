@@ -16,8 +16,9 @@ constantes no site.
 Modo de Usar: python ftm-02-Beta.py domínio (Caso não informe o domínio na
 linha de comando, o software perguntará qual o alvo)
 
-RoadMap: a) melhorar o whois do domínio - não funciona com .br; b) não ser
-bloqueado pelo CloudFlare; c) Exportar um relatório em PDF.
+RoadMap: a) melhorar o whois do domínio - não funciona com .br;
+b) não ser bloqueado pelo CloudFlare;
+c) Exportar um relatório em PDF.
 
 """
 import socket
@@ -78,12 +79,10 @@ def findservidor(dominio_analisado, dicsubdominios):
         try:
             print('{} : {}'.format(subs, socket.gethostbyname(
                 subs + '.' + dominio_analisado)))
-            #print(subs) + (": ") +  socket.gethostbyname(subs + '.' + dominio_analisado)
             dicsubdominios[subs] = socket.gethostbyname(
                 subs + '.' + dominio_analisado)
         except socket.gaierror:
             pass
-           # print("Erro: " + subs + '.' + dominio_analisado + " não responde")
     return dicsubdominios
 
 
@@ -100,9 +99,7 @@ def d_whois(dominio_analisado):
     tab_contato.add_rows(contato_list)
     tab_contato.set_cols_align(['c', 'c'])
     tab_contato.header(['Contato', dominio_analisado])
-    print(tab_contato.draw())
-
-    print('\n')
+    print(tab_contato.draw() + '\n')
 
     tab_billing = tt.Texttable()
 
@@ -114,9 +111,7 @@ def d_whois(dominio_analisado):
     tab_billing.add_rows(contato_billing)
     tab_billing.set_cols_align(['c', 'c'])
     tab_billing.header(['Resp. Pagamento', dominio_analisado])
-    print(tab_billing.draw())
-
-    print('\n')
+    print(tab_billing.draw() + '\n')
 
     tab_tech = tt.Texttable()
 
@@ -161,8 +156,7 @@ def ip_whois(dicsubdominios):
         tab_nets.add_rows(contato_nets)
         tab_nets.set_cols_align(['c', 'c'])
         tab_nets.header(['Dados do Host', '  '])
-        print(tab_nets.draw())
-        print('\n\n')
+        print(tab_nets.draw() + 2 * '\n')
 
 
 def get_ids(dominio_analisado):
@@ -189,10 +183,10 @@ def get_ids(dominio_analisado):
     juicyadcode = soup.find(
         "meta", {
             "name": 'juicyads-site-verification'})  # ['content']
-
-    print('########################################')
-    print('# Códigos de Identificação Localizados #')
-    print('########################################')
+    str_codigo_ident_localizado = '# Códigos de Identificação Localizados #'
+    print(len(str_codigo_ident_localizado) * '#')
+    print(str_codigo_ident_localizado)
+    print(len(str_codigo_ident_localizado) * '#')
     try:
         print('[BR] Google Site Verification Code: {}'.format(gcode['content']))
     except TypeError:
@@ -210,16 +204,17 @@ def get_ids(dominio_analisado):
     print('[BR] Google Analitycs ID OLD: {}'.format(analitycs_id_old))
     print('[BR] Google Ad Sense ID: {}'.format(ad_sense_id))
     print('################ FIM ###################\n\n')
-    print('#####################')
-    print('# Links Encontrados #')
-    print('#####################\n')
+
+    str_links_encontrados = '# Links Encontrados #'
+    print(len(str_links_encontrados) * '#')
+    print(str_links_encontrados)
+    print(len(str_links_encontrados) * '#' + '\n')
+
     links = soup.find_all("a")
     for link in links:
         print("{}".format(link.get("href")))
     print('#####################')
 
-
-# Programa Principal
 
 def main():
 
@@ -236,10 +231,10 @@ def main():
     else:
         dominio_analisado = input('Digite a raiz do dominio: ')
 
-    print('#########################################################')
+    print(57 * '#')
     print('# RELATÓRIO - ANALISE DO DOMÍNIO: {}                    #'.format(dominio_analisado))
     print('# FTM - Version 0.1                                     #')
-    print('#########################################################')
+    print(57 * '#')
 
     print('\n\nVerificação das Informações existentes e publicamente disponíveis acerca do\n'
           'domínio {}, com a finalidade de identificar elementos que possam\n'
