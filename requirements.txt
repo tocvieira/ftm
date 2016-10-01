@@ -1,0 +1,11 @@
+beautifulsoup4==4.5.1
+bs4==0.0.1
+decorator==4.0.10
+dnspython==1.15.0
+dnspython3==1.15.0
+ipwhois==0.14.0
+ntplib==0.3.3
+pythonwhois==2.4.3
+six==1.10.0
+texttable==0.8.4
+validators==0.11.0
