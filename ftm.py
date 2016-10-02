@@ -77,8 +77,8 @@ def findservidor(dominio_analisado, dicsubdominios):
         'smtp')
     for subs in subdominios:
         try:
-            print('{} : {}'.format(subs, socket.gethostbyname(
-                subs + '.' + dominio_analisado)))
+            # print('{} : {}'.format(subs, socket.gethostbyname(
+            #     subs + '.' + dominio_analisado)))
             dicsubdominios[subs] = socket.gethostbyname(
                 subs + '.' + dominio_analisado)
         except socket.gaierror:
@@ -144,7 +144,7 @@ def ip_whois(dicsubdominios):
     for (k, v) in dicsubdominios.items():
         hosts = IPWhois(v)  # .lookup_rws()
         results = hosts.lookup_whois()
-        print('Host - {}: {}'.format(k, v))
+        print('Host - %s: %s' % (k, v))
 
         tab_nets = tt.Texttable()
 
@@ -183,10 +183,11 @@ def get_ids(dominio_analisado):
     juicyadcode = soup.find(
         "meta", {
             "name": 'juicyads-site-verification'})  # ['content']
-    str_codigo_ident_localizado = '# Códigos de Identificação Localizados #'
-    print(len(str_codigo_ident_localizado) * '#')
+    str_codigo_ident_localizado = '# Códigos de Identificação Localizados'
+    asterisco = len(str_codigo_ident_localizado) + len(gcode['content'])
+    print(asterisco * '#')
     print(str_codigo_ident_localizado)
-    print(len(str_codigo_ident_localizado) * '#')
+    print(asterisco * '#')
     try:
         print('[BR] Google Site Verification Code: {}'.format(gcode['content']))
     except TypeError:
@@ -200,10 +201,10 @@ def get_ids(dominio_analisado):
         print('[CA] Juicy Ad Code - www.juicyads.com: {}'.format(juicyadcode['content']))
     except TypeError:
         pass
-    print('[BR] Google Analitycs ID: {}'.format(analitycs_id))
-    print('[BR] Google Analitycs ID OLD: {}'.format(analitycs_id_old))
-    print('[BR] Google Ad Sense ID: {}'.format(ad_sense_id))
-    print('################ FIM ###################\n\n')
+    print('[BR] Google Analitycs ID: %s' % analitycs_id)
+    print('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
+    print('[BR] Google Ad Sense ID: %s' % ad_sense_id)
+    print(asterisco * '#' + '\n\n')
 
     str_links_encontrados = '# Links Encontrados #'
     print(len(str_links_encontrados) * '#')
@@ -216,7 +217,7 @@ def get_ids(dominio_analisado):
     print('#####################')
 
 
-def main():
+if __name__ == '__main__':
 
     ntpservs = ['a.st1.ntp.br', ' b.st1.ntp.br',
                 ' c.st1.ntp.br', 'd.st1.ntp.br']
@@ -231,10 +232,13 @@ def main():
     else:
         dominio_analisado = input('Digite a raiz do dominio: ')
 
-    print(57 * '#')
-    print('# RELATÓRIO - ANALISE DO DOMÍNIO: {}                    #'.format(dominio_analisado))
-    print('# FTM - Version 0.1                                     #')
-    print(57 * '#')
+    # Melhorando o quadro de título do relatório
+    str_titulo = '# RELATÓRIO - ANALISE DO DOMÍNIO:'
+    espacos = 60 - 37 - len(dominio_analisado)
+    print(60 * '#')
+    print('%s %s %s #' % (str_titulo, dominio_analisado, espacos * ' '))
+    print('# FTM - Version 0.1 %s #' % (38 * ' '))
+    print(60 * '#')
 
     print('\n\nVerificação das Informações existentes e publicamente disponíveis acerca do\n'
           'domínio {}, com a finalidade de identificar elementos que possam\n'
@@ -245,30 +249,28 @@ def main():
           'do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido\n'
           'em Python 3.5, com código fonte disponível em http://github.com/XXXXXX'. format(dominio_analisado))
 
-    print('\n')
-    check_dominio_analisado(dominio_analisado)
-    print('\n')
+    # print('\n')
+    # check_dominio_analisado(dominio_analisado)
+    # print('\n')
 
     ntpbr_time = ntp_time(ntpservs)
-    print('Horário da Execução - NTP.br: {}'.format(ntpbr_time))
+    print('\n\nHorário da Execução - NTP.br: {}'.format(ntpbr_time))
 
     dicsubdominios = {}
-    ipsuddominios = {}
+    # ipsubdominios = {}
 
-    print("\n \n Servidores Identificados:\n\n")
-    findservidor(dominio_analisado, dicsubdominios)
+    print("\n\nServidores Identificados:\n")
+    servidores = findservidor(dominio_analisado, dicsubdominios)
+    for k, v in servidores.items():
+        print(k, v)
 
-    print('\n\nInformações do nome do domínio {}: \n'.format(dominio_analisado))
-    cdn = d_whois(dominio_analisado)
-    if cdn == True:
+    print('\n\nInformações do nome do domínio %s: \n' % dominio_analisado)
+    if d_whois(dominio_analisado):
         print('\n\nATENÇÃO! O NAME SERVER indica a utilização de uma Rede de Fornecimento de Conteúdo (Content Delivery Network – CDN)')
     else:
         pass
-    print('\n\n')
+
+    print(2 * '\n')
     ip_whois(dicsubdominios)
-    print('\n\n')
+    print(2 * '\n')
     get_ids("http://" + dominio_analisado)
-
-
-if __name__ == '__main__':
-    main()
