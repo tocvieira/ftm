@@ -1,6 +1,7 @@
 # ftm
 
-O software reune informações publicamente disponíveis que possam levar a identificação da autoria de um site.
+O software Follow the Money - FTM reune informações publicamente disponíveis que possam levar a identificação da autoria de um site. Tem como foco identificar empresas com atuação nacional que possam indicar diretamente o responsável. Isso reduz a necessidade de cooperação internacional reduzindo assim, significativamente, o tempo da investigação.
+
 
 ## Como contribuir?
 
