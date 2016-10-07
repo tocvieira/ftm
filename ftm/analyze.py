@@ -22,11 +22,9 @@ c) Exportar um relatório em PDF.
 
 """
 import socket
-import sys
 import texttable as tt
 import pythonwhois
 import re
-import validators
 import urllib.request
 from bs4 import BeautifulSoup
 from ipwhois import IPWhois
@@ -52,18 +50,6 @@ def ntp_time(servers):
             pass
 
     return ntp_time
-
-
-def check_dominio_analisado(dominio_analisado):
-    """
-    Verifica se a string informada é valida como nome de domínio
-
-    """
-    if validators.domain(dominio_analisado):
-        pass
-    else:
-        print('\n\nA sintax do domínio informado é inválida\n\n')
-        exit()
 
 
 def findservidor(dominio_analisado, dicsubdominios):
@@ -97,15 +83,14 @@ def d_whois(dominio_analisado):
 
     whois = pythonwhois.get_whois(dominio_analisado)
     rawwhois = whois.get('raw')
-    print(rawwhois[0])
+    return (rawwhois[0])
 
 
 def ip_whois(dicsubdominios):
+    result = {}
     for (k, v) in dicsubdominios.items():
         hosts = IPWhois(v)  # .lookup_rws()
         results = hosts.lookup_whois()
-        print('Host - %s: %s' % (k, v))
-
         tab_nets = tt.Texttable()
 
         contato_nets = [[]]  # The empty row will have the header
@@ -116,7 +101,8 @@ def ip_whois(dicsubdominios):
         tab_nets.add_rows(contato_nets)
         tab_nets.set_cols_align(['c', 'c'])
         tab_nets.header(['Dados do Host', '  '])
-        print(tab_nets.draw() + 2 * '\n')
+        result[k] = (tab_nets.draw() + 2 * '\n')
+    return result
 
 
 def get_ids(dominio_analisado):
@@ -143,97 +129,51 @@ def get_ids(dominio_analisado):
     juicyadcode = soup.find(
         "meta", {
             "name": 'juicyads-site-verification'})  # ['content']
-    print ('########################################\n')
-    print ('# Códigos de Identificação Localizados #\n')
-    print ('########################################\n')
-    #asterisco = len(str_codigo_ident_localizado) + len(gcode['content'])
-    #print(asterisco * '#')
-    #print(str_codigo_ident_localizado)
-    #print(asterisco * '#')
+
+    ids = []
     try:
-        print('[BR] Google Site Verification Code: {}'.format(gcode['content']))
+        ids.append('[BR] Google Site Verification Code: {}'.format(gcode['content']))
     except TypeError:
         pass
     try:
-        print(
-            '[BR] Microsoft Bing Verification Code:[]'.format(mscode['content']))
+        ids.append('[BR] Microsoft Bing Verification Code:[]'.format(mscode['content']))
     except TypeError:
         pass
     try:
-        print('[CA] Juicy Ad Code - www.juicyads.com: {}'.format(juicyadcode['content']))
+        ids.append('[CA] Juicy Ad Code - www.juicyads.com: {}'.format(juicyadcode['content']))
     except TypeError:
         pass
-    print('[BR] Google Analitycs ID: %s' % analitycs_id)
-    print('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
-    print('[BR] Google Ad Sense ID: %s' % ad_sense_id)
-    #print(asterisco * '#' + '\n\n')
+    ids.append('[BR] Google Analitycs ID: %s' % analitycs_id)
+    ids.append('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
+    ids.append('[BR] Google Ad Sense ID: %s' % ad_sense_id)
+    ids = "\n".join(ids)
 
-    str_links_encontrados = '# Links Encontrados #'
-    print(len(str_links_encontrados) * '#')
-    print(str_links_encontrados)
-    print(len(str_links_encontrados) * '#' + '\n')
+    links_encontrados = "\n".join([link.get('href') for link in soup.find_all("a") if link.get('href')])
 
-    links = soup.find_all("a")
-    for link in links:
-        print("{}".format(link.get("href")))
-    print('#####################')
-    print(2 * '\n')
+    return ids, links_encontrados
 
 
-if __name__ == '__main__':
-
-    ntpservs = ['a.st1.ntp.br', ' b.st1.ntp.br',
-                ' c.st1.ntp.br', 'd.st1.ntp.br']
-
-    '''
-    Verifica se o argumento essencial, o nome de domínio, foi informado na
-    execução. Caso contrário solicita ao usuário que informe
-    '''
-
-    if len(sys.argv) > 1:
-        dominio_analisado = sys.argv[1]
-    else:
-        dominio_analisado = input('Digite a raiz do dominio: ')
-
-    # Melhorando o quadro de título do relatório
-    str_titulo = '# RELATÓRIO - ANALISE DO DOMÍNIO:'
-    espacos = 60 - 37 - len(dominio_analisado)
-    print(60 * '#')
-    print('%s %s %s #' % (str_titulo, dominio_analisado, espacos * ' '))
-    print('# FTM - Version 0.1 %s #' % (38 * ' '))
-    print(60 * '#')
-
-    print('\n\nVerificação das Informações existentes e publicamente disponíveis acerca do\n'
-          'domínio {}, com a finalidade de identificar elementos que possam\n'
-          'levar a identificação da autoria, tais como: responsável pelo registro do nome\n'
-          'de domínio, empresa responsável pela hospedagem e códigos de identificação únicos\n '
-          'de serviços agregados ao site. Relatório gerado pelo software Follow to The Money - FTM,\n'
-          'com informações publicamente disponíveis na rede mundial de computadores acerca\n'
-          'do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido\n'
-          'em Python 3.5, com código fonte disponível em http://github.com/tocvieira/ftm'. format(dominio_analisado))
-
-    # print('\n')
-    # check_dominio_analisado(dominio_analisado)
-    # print('\n')
+def analyze(dominio_analisado):
+    ntpservs = ['a.st1.ntp.br',
+                'b.st1.ntp.br',
+                'c.st1.ntp.br',
+                'd.st1.ntp.br']
 
     ntpbr_time = ntp_time(ntpservs)
-    print('\n\nHorário da Execução - NTP.br: {}'.format(ntpbr_time))
 
     dicsubdominios = {}
-    # ipsubdominios = {}
-
-    print("\n\nServidores Identificados:\n")
     servidores = findservidor(dominio_analisado, dicsubdominios)
-    for k, v in servidores.items():
-        print(k, v)
 
-    print('\n\nInformações do nome do domínio %s: \n' % dominio_analisado)
-    if d_whois(dominio_analisado):
-        print('\n\nATENÇÃO! O NAME SERVER indica a utilização de uma Rede de Fornecimento de Conteúdo (Content Delivery Network – CDN)')
-    else:
-        pass
+    whois = d_whois(dominio_analisado)
+    whois_subdomains = ip_whois(dicsubdominios)
+    ids, links_encontrados = get_ids("http://" + dominio_analisado)
 
-    print(2 * '\n')
-    ip_whois(dicsubdominios)
-    print(2 * '\n')
-    get_ids("http://" + dominio_analisado)
+    return {
+        "dominio_analisado": dominio_analisado,
+        "ntpbr_time": ntpbr_time,
+        "servidores": [(k, v, whois_subdomains[k]) for k, v in servidores.items()],
+        "whois": whois,
+        "ids": ids,
+        "links_encontrados": links_encontrados,
+    }
+

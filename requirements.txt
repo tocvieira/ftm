@@ -1,6 +1,7 @@
 beautifulsoup4==4.5.1
-bs4==0.0.1
 decorator==4.0.10
+Django==1.10.2
+django-bootstrap3==7.1.0
 dnspython==1.15.0
 dnspython3==1.15.0
 ipwhois==0.14.0

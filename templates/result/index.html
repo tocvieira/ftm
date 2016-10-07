@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+
+    <style type="text/css">
+        *
+        {
+            margin: 0;
+            padding: 0;
+        }
+
+        .container
+        {
+            width: 1024px;
+            margin: 30px auto;
+
+            font: 12pt/1.4em sans-serif;
+        }
+
+        h1
+        {
+            background: #5b9bd5;
+            color: #fff;
+
+            font-size: 13pt;
+            padding: 10px 0;
+
+            text-align: center;
+        }
+
+        h2
+        {
+            background: #deeaf6;
+
+            font-size: 13pt;
+            font-weight: bold;
+            padding: 10px 0;
+        }
+
+        h3
+        {
+            border-top: 1px solid #5b9bd5;
+            color: #5b9bd5;
+
+            padding: 10px 0;
+
+            text-align: center;
+        }
+
+        p
+        {
+            margin: 10px 0;
+        }
+
+        table
+        {
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        table, tr, td
+        {
+            border: 1px solid #deeaf6;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+        td
+        {
+            padding: 0 2px;
+        }
+
+        .center-narrow
+        {
+            margin: 5px auto;
+            width: 480px;
+        }
+        .center-wide
+        {
+            margin: 5px auto;
+            width: 720px;
+        }
+
+        .pre
+        {
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FTM - RELATÓRIO DE INFORMAÇÕES</h1>
+
+        <p>Verificação das Informações existentes e publicamente disponíveis acerca do domínio {{ dominio_analisado }}, com a finalidade de identificar elementos que possam levar a identificação da autoria, tais como: responsável pelo registro do nome de domínio, empresa responsável pela hospedagem e códigos de identificação únicos de serviços agregados ao site.</p>
+        <p>Relatório gerado pelo software Follow to The Money - FTM, com informações publicamente disponíveis na rede mundial de computadores acerca do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido em Python 3.5, com código fonte disponível em http://github.com/XXXXXX</p>
+
+        <h2>INFORMAÇÕES PRELIMINARES</h2>
+
+        <table>
+            <tr>
+                <td>Domínio Analisado</td>
+                <td>{{ dominio_analisado }}</td>
+            </tr>
+            <tr>
+                <td>Hora Legal Brasileira da Execução (a.st1.ntp.br)</td>
+                <td>{{ ntpbr_time }}</td>
+            </tr>
+            <tr>
+                <td>Versão do FTM</td>
+                <td>1.0</td>
+            </tr>
+        </table>
+
+        <h2>INFORMAÇÕES SOBRE O REGISTRO DO NOME DE DOMÍNIO</h2>
+
+        <div class="center-narrow pre">{{ whois }}</div>
+
+        <h2>INFORMAÇÔES SOBRE A HOSPEDAGEM</h2>
+        <h3>ATENÇÃO! O NAME SERVER INDICA A UTILIZAÇÃO DE UMA REDE DE FORNECIMENTO DE CONTEÚDO (CONTENT DELIVERY NETWORK – CDN)</h3>
+        <p>A CDN é uma rede global distribuída de servidores proxy, ou seja, o conteúdo de um site é espalhado em
+        vários servidores ao redor do mundo com o objetivo de aumentar a disponibilidade e o desemprenho dos
+        usuários. <b>Ocorre que o real servidor do site fica oculto</b>, pois as requisições retornam o Internet Protocolo
+        (IP) dos servidores CDN e não o IP do verdadeiro host.</p>
+        <h3>CDN: CLOUDFLARE.COM</h3>
+        <p>"CloudFlare, Inc. é uma companhia dos Estados Unidos que fornece uma rede de entrega de conteúdo e
+        serviços distribuídos de DNS, sendo o intermediário entre o visitante e o provedor de hospedagem do
+        usuário da CloudFlare, atuando como um proxy reverso para websites. A sua rede protege, acelera e
+        melhora a disponibilidade de um website ou aplicação móvel com uma mudança no DNS. A CloudFlare
+        está sediada em São Francisco, Califórnia, com escritórios adicionais em Londres e Singapura.” Wikipedia
+        - https://pt.wikipedia.org/wiki/CloudFlare</p>
+
+        <h3>SUB-DOMÍNIOS LOCALIZADOS</h3>
+
+        <div class="center-wide">
+            {% for k, v, w in servidores %}
+                <div><b>{{ k }} : {{ v }}</b></div>
+
+                <div class="pre" style="font-family: monospace;">{{ w }}</div>
+            {% endfor %}
+        </div>
+
+        <h1>CÓDIGOS DE IDENTIFICAÇÃO LOCALIZADOS</h1>
+
+        <p>Para utilizar serviços de terceiros que, por exemplo, gerem estatísticas ou remunerem por publicidade
+        veiculada no site, é necessário incluir no código fonte no website sequências únicas de caracteres. Esta
+        sequência de caracteres prova junto ao prestador de serviço a titularidade do website, também servindo
+        como número de identificação do usuário.</p>
+        <p>Abaixo segue os Códigos de Identificação Localizados:</p>
+
+        <div class="pre">{{ ids }}</div>
+
+        <h1>LINKS ENCONTRADOS</h1>
+
+        <div class="pre">{{ links_encontrados }}</div>
+    </div>
+</body>
+</html>
