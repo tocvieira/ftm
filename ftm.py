@@ -36,6 +36,8 @@ from ntplib import NTPClient, NTPException
 
 def ntp_time(servers):
     """
+    Retorna a hora oficial do Brasil (NTP.br)
+
     Returns the official time of Brazil (NTP.br).
     """
     ntp_time = None
@@ -53,6 +55,10 @@ def ntp_time(servers):
 
 
 def check_dominio_analisado(dominio_analisado):
+    """
+    Verifica se a string informada é valida como nome de domínio
+
+    """
     if validators.domain(dominio_analisado):
         pass
     else:
@@ -61,6 +67,7 @@ def check_dominio_analisado(dominio_analisado):
 
 
 def findservidor(dominio_analisado, dicsubdominios):
+    """ Busca por subdomínios """
     subdominios = (
         'www',
         'mail',
@@ -87,57 +94,10 @@ def findservidor(dominio_analisado, dicsubdominios):
 
 
 def d_whois(dominio_analisado):
+
     whois = pythonwhois.get_whois(dominio_analisado)
-
-    tab_contato = tt.Texttable()
-
-    contato_list = [[]]  # The empty row will have the header
-
-    for i in whois['contacts']['admin'].keys():
-        contato_list.append([i, whois['contacts']['admin'][i]])
-
-    tab_contato.add_rows(contato_list)
-    tab_contato.set_cols_align(['c', 'c'])
-    tab_contato.header(['Contato', dominio_analisado])
-    print(tab_contato.draw() + '\n')
-
-    tab_billing = tt.Texttable()
-
-    contato_billing = [[]]  # The empty row will have the header
-
-    for i in whois['contacts']['registrant'].keys():
-        contato_billing.append([i, whois['contacts']['registrant'][i]])
-
-    tab_billing.add_rows(contato_billing)
-    tab_billing.set_cols_align(['c', 'c'])
-    tab_billing.header(['Resp. Pagamento', dominio_analisado])
-    print(tab_billing.draw() + '\n')
-
-    tab_tech = tt.Texttable()
-
-    contato_tech = [[]]  # The empty row will have the header
-
-    for i in whois['contacts']['tech'].keys():
-        contato_tech.append([i, whois['contacts']['tech'][i]])
-
-    tab_tech.add_rows(contato_tech)
-    tab_tech.set_cols_align(['c', 'c'])
-    tab_tech.header(['Resp. Técnico', dominio_analisado])
-    print(tab_tech.draw())
-
-    print('\nOutras Informações \nData de Criação: {}'.format(
-        whois['creation_date']))
-    print('Data de Expiração: {}'.format(whois['expiration_date']))
-    print('Name Servers: {}'.format(whois['nameservers']))
-    print('Registrar: {}'.format(whois['registrar']))
-    print('Status: {}'.format(whois['status']))
-    print('Servidor de WHOIS: {}'.format(whois['whois_server']))
-
-    if 'CLOUDFLARE' in whois['nameservers'][0]:
-        cdn = True
-    else:
-        cdn = False
-    return cdn
+    rawwhois = whois.get('raw')
+    print(rawwhois[0])
 
 
 def ip_whois(dicsubdominios):
@@ -183,11 +143,13 @@ def get_ids(dominio_analisado):
     juicyadcode = soup.find(
         "meta", {
             "name": 'juicyads-site-verification'})  # ['content']
-    str_codigo_ident_localizado = '# Códigos de Identificação Localizados'
-    asterisco = len(str_codigo_ident_localizado) + len(gcode['content'])
-    print(asterisco * '#')
-    print(str_codigo_ident_localizado)
-    print(asterisco * '#')
+    print ('########################################\n')
+    print ('# Códigos de Identificação Localizados #\n')
+    print ('########################################\n')
+    #asterisco = len(str_codigo_ident_localizado) + len(gcode['content'])
+    #print(asterisco * '#')
+    #print(str_codigo_ident_localizado)
+    #print(asterisco * '#')
     try:
         print('[BR] Google Site Verification Code: {}'.format(gcode['content']))
     except TypeError:
@@ -204,7 +166,7 @@ def get_ids(dominio_analisado):
     print('[BR] Google Analitycs ID: %s' % analitycs_id)
     print('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
     print('[BR] Google Ad Sense ID: %s' % ad_sense_id)
-    print(asterisco * '#' + '\n\n')
+    #print(asterisco * '#' + '\n\n')
 
     str_links_encontrados = '# Links Encontrados #'
     print(len(str_links_encontrados) * '#')
@@ -215,6 +177,7 @@ def get_ids(dominio_analisado):
     for link in links:
         print("{}".format(link.get("href")))
     print('#####################')
+    print(2 * '\n')
 
 
 if __name__ == '__main__':
@@ -247,7 +210,7 @@ if __name__ == '__main__':
           'de serviços agregados ao site. Relatório gerado pelo software Follow to The Money - FTM,\n'
           'com informações publicamente disponíveis na rede mundial de computadores acerca\n'
           'do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido\n'
-          'em Python 3.5, com código fonte disponível em http://github.com/XXXXXX'. format(dominio_analisado))
+          'em Python 3.5, com código fonte disponível em http://github.com/tocvieira/ftm'. format(dominio_analisado))
 
     # print('\n')
     # check_dominio_analisado(dominio_analisado)
