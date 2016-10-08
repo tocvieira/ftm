@@ -80,9 +80,12 @@ def findservidor(dominio_analisado, dicsubdominios):
 
 
 def d_whois(dominio_analisado):
-
-    whois = pythonwhois.get_whois(dominio_analisado)
-    rawwhois = whois.get('raw')
+    try:
+        whois = pythonwhois.get_whois(dominio_analisado)
+        rawwhois = whois.get('raw')
+    except UnicodeDecodeError:
+        rawwhois = ['Erro na coleta de dados do domínio. Tente https://registro.br/cgi-bin/whois/']
+        pass
     return (rawwhois[0])
 
 
