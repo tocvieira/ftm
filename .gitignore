@@ -40,3 +40,9 @@ nosetests.xml
 
 # ENV
 .env
+
+# db
+*.sqlite3
+
+# virtualenv
+.venv
