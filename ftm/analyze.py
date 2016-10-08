@@ -44,7 +44,7 @@ def ntp_time(servers):
     for host in servers:
         try:
             response = client.request(host)
-            ntp_time = ctime(response.tx_time)
+            ntp_time = ctime(response.orig_time)
             break
         except (NTPException, socket.gaierror):
             pass
