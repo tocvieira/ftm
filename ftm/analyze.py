@@ -164,7 +164,10 @@ def analyze(dominio_analisado):
     dicsubdominios = {}
     servidores = findservidor(dominio_analisado, dicsubdominios)
 
-    whois = d_whois(dominio_analisado)
+    try:
+        whois = d_whois(dominio_analisado)
+    except:
+        pass
     whois_subdomains = ip_whois(dicsubdominios)
     ids, links_encontrados = get_ids("http://" + dominio_analisado)
 
