@@ -30,7 +30,7 @@ from bs4 import BeautifulSoup
 from ipwhois import IPWhois
 from time import ctime
 from ntplib import NTPClient, NTPException
-import os
+import requests
 
 
 def ntp_time(servers):
@@ -88,6 +88,7 @@ def d_whois(dominio_analisado):
     except UnicodeDecodeError:
         # rawwhois = ['Erro na coleta de dados do domínio. Tente https://registro.br/cgi-bin/whois/']
         rawwhois.append(os.popen('whois %s' % dominio_analisado).read())
+        #rawwhois.append(requests.get ("https://registro.br/cgi-bin/whois/?qr=%s" % dominio_analisado).text)
         pass
     return (rawwhois[0])
 

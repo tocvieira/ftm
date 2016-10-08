@@ -1,4 +1,5 @@
 *.py[cod]
+brwhois.py
 
 # C extensions
 *.so
