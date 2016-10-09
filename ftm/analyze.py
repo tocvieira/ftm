@@ -86,8 +86,8 @@ def d_whois(dominio_analisado):
         whois = pythonwhois.get_whois(dominio_analisado)
         rawwhois = whois.get('raw')
     except UnicodeDecodeError:
-        rawwhois = ['Erro na coleta de dados do domínio. Tente https://registro.br/cgi-bin/whois/']
-        # rawwhois.append(os.popen('whois %s' % dominio_analisado).read())
+        # rawwhois = ['Erro na coleta de dados do domínio. Tente https://registro.br/cgi-bin/whois/']
+        rawwhois.append(os.popen('~/vendor/whois/usr/bin/whois %s' % dominio_analisado).read())
         # rawwhois.append(requests.get ("https://registro.br/cgi-bin/whois/?qr=%s" % dominio_analisado).text)
         pass
     return (rawwhois[0])
