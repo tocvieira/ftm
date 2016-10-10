@@ -123,39 +123,43 @@ def get_ids(dominio_analisado):
         })
     f = urllib.request.urlopen(req)
     soup = BeautifulSoup(f, "html.parser")
-    script = soup.head.find_all('script')  # , {'src':False, 'type':False}
-    script = str(script)
-    script_old = soup.find_all('script')
-    script_old = str(script_old)
-    analitycs_id = re.findall(r'[\'\"](UA[\w-]+)[\'\"]', script)
-    analitycs_id_old = re.findall(r'UA[\w-]+', script_old)
-    ad_sense_id = re.findall(r'[\'\"]ca[\w-]pub[\w-]+[\'\"]', script)
-    gcode = soup.find(
-        "meta", {
-            "name": 'google-site-verification'})  # ['content']
-    mscode = soup.find("meta", {"name": 'msvalidate.01'})  # ['content']
-    juicyadcode = soup.find(
-        "meta", {
-            "name": 'juicyads-site-verification'})  # ['content']
-
+    try:
+        script = soup.head.find_all('script')  # , {'src':False, 'type':False}
+        script = str(script)
+        script_old = soup.find_all('script')
+        script_old = str(script_old)
+        analitycs_id = re.findall(r'[\'\"](UA[\w-]+)[\'\"]', script)
+        analitycs_id_old = re.findall(r'UA[\w-]+', script_old)
+        ad_sense_id = re.findall(r'[\'\"]ca[\w-]pub[\w-]+[\'\"]', script)
+        gcode = soup.find(
+            "meta", {
+                "name": 'google-site-verification'})  # ['content']
+        mscode = soup.find("meta", {"name": 'msvalidate.01'})  # ['content']
+        juicyadcode = soup.find(
+            "meta", {
+                "name": 'juicyads-site-verification'})  # ['content']
+    except:
+        pass
     ids = []
     try:
         ids.append('[BR] Google Site Verification Code: {}'.format(gcode['content']))
-    except TypeError:
+    except:
         pass
     try:
         ids.append('[BR] Microsoft Bing Verification Code:[]'.format(mscode['content']))
-    except TypeError:
+    except:
         pass
     try:
         ids.append('[CA] Juicy Ad Code - www.juicyads.com: {}'.format(juicyadcode['content']))
-    except TypeError:
+    except:
         pass
-    ids.append('[BR] Google Analitycs ID: %s' % analitycs_id)
-    ids.append('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
-    ids.append('[BR] Google Ad Sense ID: %s' % ad_sense_id)
-    ids = "\n".join(ids)
-
+    try:
+        ids.append('[BR] Google Analitycs ID: %s' % analitycs_id)
+        ids.append('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
+        ids.append('[BR] Google Ad Sense ID: %s' % ad_sense_id)
+        ids = "\n".join(ids)
+    except:
+        pass
     links_encontrados = "\n".join([link.get('href') for link in soup.find_all("a") if link.get('href')])
 
     return ids, links_encontrados
