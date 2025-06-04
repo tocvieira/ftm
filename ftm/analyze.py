@@ -21,16 +21,19 @@ b) não ser bloqueado pelo CloudFlare;
 c) Exportar um relatório em PDF.
 
 """
+import os
+import re
 import socket
+from concurrent.futures import ThreadPoolExecutor
+from time import ctime
+
 import texttable as tt
 import pythonwhois
-import re
-import urllib.request
 from bs4 import BeautifulSoup
 from ipwhois import IPWhois
-from time import ctime
 from ntplib import NTPClient, NTPException
-import os
+import urllib.request
+from urllib.error import URLError, HTTPError
 
 
 
@@ -55,87 +58,69 @@ def ntp_time(servers):
 
 
 def findservidor(dominio_analisado, dicsubdominios):
-    """ Busca por subdomínios """
-    subdominios = (
-        'www',
-        'mail',
-        'ftp',
-        'cpanel',
-        'blog'
-        'direct',
-        'direct-connect',
-        'admin',
-        'pop',
-        'imap',
-        'forum',
-        'portal',
-        'smtp',
-        'm',
-        'www2',
-        'dev',
-        'remote',
-        'server',
-        'webmail',
-        'ns1',
-        'ns2',
-        'secure',
-        'vpn',
-        'shop',
-        'mail2',
-        'teste',
-        'ns',
-        'host',
-        '1',
-        '2',
-        'mx1',
-        'exchange',
-        'api',
-        'news',
-        'vps',
-        'gov',
-        'owa',
-        'cloud',
-    )
-    for subs in subdominios:
+    """Busca por subdomínios de forma concorrente"""
+    wordlist = []
+    wordlist_path = os.path.join(os.path.dirname(__file__), "data", "subdomains.txt")
+    if os.path.exists(wordlist_path):
+        with open(wordlist_path) as f:
+            wordlist = [l.strip() for l in f if l.strip()]
+    if not wordlist:
+        wordlist = ["www"]
+
+    def resolve(sub):
         try:
-            # print('{} : {}'.format(subs, socket.gethostbyname(
-            #     subs + '.' + dominio_analisado)))
-            dicsubdominios[subs] = socket.gethostbyname(
-                subs + '.' + dominio_analisado)
+            return sub, socket.gethostbyname(f"{sub}.{dominio_analisado}")
         except socket.gaierror:
-            pass
+            return sub, None
+
+    with ThreadPoolExecutor(max_workers=10) as exc:
+        for sub, ip in exc.map(resolve, wordlist):
+            if ip:
+                dicsubdominios[sub] = ip
+
     return dicsubdominios
 
 
 def d_whois(dominio_analisado):
-    rawwhois = []
     try:
         whois = pythonwhois.get_whois(dominio_analisado)
-        rawwhois = whois.get('raw')
+        raw = whois.get("raw")
+        if raw:
+            return raw[0]
     except UnicodeDecodeError:
-        # rawwhois = ['Erro na coleta de dados do domínio. Tente https://registro.br/cgi-bin/whois/']
-        rawwhois.append(os.popen('~/vendor/whois/usr/bin/whois %s' % dominio_analisado).read())
-        # rawwhois.append(requests.get ("https://registro.br/cgi-bin/whois/?qr=%s" % dominio_analisado).text)
         pass
-    return (rawwhois[0])
+
+    # Fallback for .br domains or when pythonwhois fails
+    try:
+        return os.popen(f"whois {dominio_analisado}").read()
+    except Exception:
+        return ""
 
 
 def ip_whois(dicsubdominios):
+    """Realiza consultas WHOIS dos IPs em paralelo"""
     result = {}
-    for (k, v) in dicsubdominios.items():
-        hosts = IPWhois(v)  # .lookup_rws()
-        results = hosts.lookup_whois()
-        tab_nets = tt.Texttable()
 
-        contato_nets = [[]]  # The empty row will have the header
+    def lookup(item):
+        k, v = item
+        try:
+            hosts = IPWhois(v)
+            results = hosts.lookup_whois()
+            tab = tt.Texttable()
+            contato = [[]]
+            for i in results['nets'][0].keys():
+                contato.append([i, results['nets'][0][i]])
+            tab.add_rows(contato)
+            tab.set_cols_align(['c', 'c'])
+            tab.header(['Dados do Host', '  '])
+            return k, tab.draw() + 2 * '\n'
+        except Exception as e:
+            return k, f"Lookup failed: {e}"
 
-        for i in results['nets'][0].keys():
-            contato_nets.append([i, results['nets'][0][i]])
+    with ThreadPoolExecutor(max_workers=5) as exc:
+        for sub, val in exc.map(lookup, dicsubdominios.items()):
+            result[sub] = val
 
-        tab_nets.add_rows(contato_nets)
-        tab_nets.set_cols_align(['c', 'c'])
-        tab_nets.header(['Dados do Host', '  '])
-        result[k] = (tab_nets.draw() + 2 * '\n')
     return result
 
 
@@ -147,7 +132,11 @@ def get_ids(dominio_analisado):
             # CloudFlare bloqueia Web Crawler
             'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0'
         })
-    f = urllib.request.urlopen(req)
+    try:
+        f = urllib.request.urlopen(req, timeout=10)
+    except (URLError, HTTPError):
+        return "", ""
+
     soup = BeautifulSoup(f, "html.parser")
     try:
         script = soup.head.find_all('script')  # , {'src':False, 'type':False}
@@ -164,27 +153,21 @@ def get_ids(dominio_analisado):
         juicyadcode = soup.find(
             "meta", {
                 "name": 'juicyads-site-verification'})  # ['content']
-    except:
-        pass
+    except AttributeError:
+        gcode = mscode = juicyadcode = None
     ids = []
-    try:
+    if gcode and gcode.get('content'):
         ids.append('[BR] Google Site Verification Code: {}'.format(gcode['content']))
-    except:
-        pass
-    try:
-        ids.append('[BR] Microsoft Bing Verification Code:[]'.format(mscode['content']))
-    except:
-        pass
-    try:
+    if mscode and mscode.get('content'):
+        ids.append('[BR] Microsoft Bing Verification Code: {}'.format(mscode['content']))
+    if juicyadcode and juicyadcode.get('content'):
         ids.append('[CA] Juicy Ad Code - www.juicyads.com: {}'.format(juicyadcode['content']))
-    except:
-        pass
     try:
         ids.append('[BR] Google Analitycs ID: %s' % analitycs_id)
         ids.append('[BR] Google Analitycs ID OLD: %s' % analitycs_id_old)
         ids.append('[BR] Google Ad Sense ID: %s' % ad_sense_id)
         ids = "\n".join(ids)
-    except:
+    except Exception:
         pass
     links_encontrados = "\n".join([link.get('href') for link in soup.find_all("a") if link.get('href')])
 
