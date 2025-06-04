@@ -13,10 +13,12 @@ Importante ressaltar que não há qualquer mecanismo intrusivo. Todas as informa
 ## Como contribuir?
 
 * Clone o repositório. 
-* Crie um virtualenv com Python 3.5. 
+* Crie um virtualenv com Python 3.10.
 * Ative o virtualenv. 
 * Instale as dependências. 
-* Rode a aplicação 
+* Rode `python manage.py migrate` para criar o banco de dados local.
+* Rode `python manage.py runserver` para iniciar a aplicação.
+* Execute os testes com `python manage.py test`.
 
 ##Autores 
 Thiago Oliveira Castro Vieira e outros. 
