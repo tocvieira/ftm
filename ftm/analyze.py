@@ -23,7 +23,7 @@ c) Exportar um relatório em PDF.
 """
 import socket
 import texttable as tt
-import pythonwhois
+import json
 import re
 import urllib.request
 from bs4 import BeautifulSoup
@@ -108,16 +108,14 @@ def findservidor(dominio_analisado, dicsubdominios):
 
 
 def d_whois(dominio_analisado):
-    rawwhois = []
+    """Retorna informações de WHOIS através do serviço RDAP."""
+    url = f"https://rdap.org/domain/{dominio_analisado}"
     try:
-        whois = pythonwhois.get_whois(dominio_analisado)
-        rawwhois = whois.get('raw')
-    except UnicodeDecodeError:
-        # rawwhois = ['Erro na coleta de dados do domínio. Tente https://registro.br/cgi-bin/whois/']
-        rawwhois.append(os.popen('~/vendor/whois/usr/bin/whois %s' % dominio_analisado).read())
-        # rawwhois.append(requests.get ("https://registro.br/cgi-bin/whois/?qr=%s" % dominio_analisado).text)
-        pass
-    return (rawwhois[0])
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = resp.read().decode("utf-8")
+        return data
+    except Exception:
+        return "Erro na coleta de dados do domínio via RDAP."
 
 
 def ip_whois(dicsubdominios):
