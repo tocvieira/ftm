@@ -10,27 +10,15 @@ requests==2.31.0
 requests[security]==2.31.0
 urllib3==2.0.7
 cloudscraper==1.2.71
-selenium==4.15.2
+selenium==4.15.0
 undetected-chromedriver==3.5.4
-chromedriver-autoinstaller==0.6.4
 requests-html==0.10.0
-
-# Bibliotecas avançadas para bypass anti-bot
-httpx==0.25.2
-curl-cffi==0.5.10
-tls-client==0.2.2
-fake-useragent==1.4.0
-browser-cookie3==0.19.1
-requests-toolbelt==1.0.0
-selenium-stealth==1.0.6
-soupsieve==2.5
-pyppeteer==1.0.2
 
 # Technology Detection
 python-Wappalyzer==0.3.1
 
 # Network Analysis
-dnspython<=2.0.0
+dnspython==2.4.2
 ipwhois==1.2.0
 python-whois==0.8.0
 
@@ -43,7 +31,8 @@ decorator==5.1.1
 pytz>=2021.1
 random2==1.0.1
 
-# Compression (using built-in gzip module)
+# Compression
+gzip2==0.1.0
 
 # Optional: FlareSolverr client (uncomment if using FlareSolverr)
 # flaresolverr==3.3.16

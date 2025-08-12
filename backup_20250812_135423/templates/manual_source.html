@@ -1,0 +1,344 @@
+{% load bootstrap3 %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTM - Análise Manual Necessária</title>
+
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    {% bootstrap_javascript %}
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        .alert-cloudflare {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .alert-cloudflare i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .instructions {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #007bff;
+        }
+        .instructions h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        .step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #28a745;
+        }
+        .step strong {
+            color: #28a745;
+        }
+        .browser-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .browser-tab {
+            flex: 1;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .browser-tab:hover {
+            background: #007bff;
+            color: white;
+        }
+        .browser-tab.active {
+            background: #007bff;
+            color: white;
+        }
+        .browser-instructions {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .browser-instructions.active {
+            display: block;
+        }
+        .form-container {
+            background: #fff6f0;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .btn-open-site {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .btn-open-site:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        .failed-attempts {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .failed-attempts h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .code-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 100px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Proteção Detectada</h1>
+            <p>O site possui proteção avançada que impede análise automática</p>
+        </div>
+
+        <div class="alert-cloudflare">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Análise Manual Necessária</h3>
+            <p>Não foi possível contornar automaticamente a proteção do site <strong>{{ domain }}</strong></p>
+            <p>Para continuar a análise, precisamos que você forneça o código fonte da página manualmente.</p>
+        </div>
+
+        {% if failed_result.ids %}
+        <div class="failed-attempts">
+            <h4><i class="fas fa-info-circle"></i> Tentativas Realizadas:</h4>
+            {% for attempt in failed_result.ids %}
+                <div>• {{ attempt }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="text-center" style="margin-bottom: 30px;">
+            <button class="btn btn-open-site" onclick="openSiteInNewTab()">
+                <i class="fas fa-external-link-alt"></i> Abrir {{ domain }} em Nova Aba
+            </button>
+        </div>
+
+        <div class="instructions">
+            <h3><i class="fas fa-list-ol"></i> Como Obter o Código Fonte</h3>
+            
+            <div class="browser-tabs">
+                <div class="browser-tab active" onclick="showBrowserInstructions('chrome')">
+                    <i class="fab fa-chrome"></i><br>Chrome
+                </div>
+                <div class="browser-tab" onclick="showBrowserInstructions('firefox')">
+                    <i class="fab fa-firefox"></i><br>Firefox
+                </div>
+                <div class="browser-tab" onclick="showBrowserInstructions('edge')">
+                    <i class="fab fa-edge"></i><br>Edge
+                </div>
+            </div>
+
+            <div id="chrome-instructions" class="browser-instructions active">
+                <div class="step">
+                    <strong>Passo 1:</strong> Acesse o site {{ domain }} na aba que foi aberta
+                </div>
+                <div class="step">
+                    <strong>Passo 2:</strong> Aguarde a página carregar completamente
+                </div>
+                <div class="step">
+                    <strong>Passo 3:</strong> Clique com o botão direito em qualquer lugar da página
+                </div>
+                <div class="step">
+                    <strong>Passo 4:</strong> Selecione "Exibir código-fonte da página" ou "View page source"
+                </div>
+                <div class="step">
+                    <strong>Passo 5:</strong> Selecione todo o código (Ctrl+A) e copie (Ctrl+C)
+                </div>
+                <div class="step">
+                    <strong>Passo 6:</strong> Cole o código no campo abaixo e clique em "Analisar"
+                </div>
+            </div>
+
+            <div id="firefox-instructions" class="browser-instructions">
+                <div class="step">
+                    <strong>Passo 1:</strong> Acesse o site {{ domain }} na aba que foi aberta
+                </div>
+                <div class="step">
+                    <strong>Passo 2:</strong> Aguarde a página carregar completamente
+                </div>
+                <div class="step">
+                    <strong>Passo 3:</strong> Pressione Ctrl+U ou clique com botão direito → "Ver código-fonte"
+                </div>
+                <div class="step">
+                    <strong>Passo 4:</strong> Selecione todo o código (Ctrl+A) e copie (Ctrl+C)
+                </div>
+                <div class="step">
+                    <strong>Passo 5:</strong> Cole o código no campo abaixo e clique em "Analisar"
+                </div>
+            </div>
+
+            <div id="edge-instructions" class="browser-instructions">
+                <div class="step">
+                    <strong>Passo 1:</strong> Acesse o site {{ domain }} na aba que foi aberta
+                </div>
+                <div class="step">
+                    <strong>Passo 2:</strong> Aguarde a página carregar completamente
+                </div>
+                <div class="step">
+                    <strong>Passo 3:</strong> Pressione F12 para abrir as ferramentas de desenvolvedor
+                </div>
+                <div class="step">
+                    <strong>Passo 4:</strong> Clique na aba "Elements" ou "Elementos"
+                </div>
+                <div class="step">
+                    <strong>Passo 5:</strong> Clique com botão direito no elemento &lt;html&gt; → "Copy" → "Copy outerHTML"
+                </div>
+                <div class="step">
+                    <strong>Passo 6:</strong> Cole o código no campo abaixo e clique em "Analisar"
+                </div>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <h3><i class="fas fa-code"></i> Cole o Código Fonte Aqui</h3>
+            <form method="post" action="{% url 'manual_analysis' %}">
+                {% csrf_token %}
+                {{ manual_form.domain_name }}
+                
+                <div class="form-group">
+                    <label for="{{ manual_form.source_code.id_for_label }}">{{ manual_form.source_code.label }}</label>
+                    {{ manual_form.source_code }}
+                    <small class="form-text text-muted">
+                        Cole aqui todo o código HTML da página. O sistema irá extrair automaticamente os IDs de rastreamento, links e tecnologias.
+                    </small>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search"></i> Analisar Código Fonte
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="text-center" style="margin-top: 30px;">
+            <a href="{% url 'index' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar ao Início
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function openSiteInNewTab() {
+            const domain = '{{ domain }}';
+            let url = domain;
+            
+            // Adiciona protocolo se não tiver
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            window.open(url, '_blank');
+        }
+
+        function showBrowserInstructions(browser) {
+            // Remove active class from all tabs and instructions
+            document.querySelectorAll('.browser-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.browser-instructions').forEach(instruction => {
+                instruction.classList.remove('active');
+            });
+            
+            // Add active class to selected tab and instruction
+            event.target.closest('.browser-tab').classList.add('active');
+            document.getElementById(browser + '-instructions').classList.add('active');
+        }
+
+        // Auto-detect when user pastes code
+        document.getElementById('{{ manual_form.source_code.id_for_label }}').addEventListener('paste', function() {
+            setTimeout(function() {
+                const code = document.getElementById('{{ manual_form.source_code.id_for_label }}').value;
+                if (code.length > 100) {
+                    // Show preview of pasted code
+                    const preview = document.createElement('div');
+                    preview.className = 'code-preview';
+                    preview.innerHTML = '<strong>Prévia do código colado:</strong><br>' + 
+                                      code.substring(0, 200).replace(/</g, '&lt;').replace(/>/g, '&gt;') + 
+                                      (code.length > 200 ? '...' : '');
+                    
+                    // Remove existing preview
+                    const existingPreview = document.querySelector('.code-preview');
+                    if (existingPreview) {
+                        existingPreview.remove();
+                    }
+                    
+                    // Add new preview
+                    document.querySelector('.form-group').appendChild(preview);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
