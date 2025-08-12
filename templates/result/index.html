@@ -26,24 +26,31 @@
         }
 
         .report-header {
-            background: linear-gradient(135deg, #ff6900, #ff9248);
-            color: #fff;
+            background: #ffffff;
+            color: #333;
             padding: 20px;
             border-radius: 8px 8px 0 0;
             margin-bottom: 30px;
             text-align: center;
+            border: 2px solid #ff6900;
         }
 
         .report-header img {
             max-height: 60px;
             margin-bottom: 15px;
-            filter: brightness(0) invert(1);
+            filter: none;
         }
 
         .report-header h1 {
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 10px;
+            color: #ff6900;
+        }
+
+        .report-header .subtitle {
+            color: #666;
+            font-size: 16px;
         }
 
         .section {
@@ -141,6 +148,71 @@
             width: 100%;
             background: #f8f9fa;
             padding: 15px;
+        }
+
+        .ids-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .id-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .id-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+        }
+
+        .id-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .id-item i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .id-text {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2c3e50;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert i {
+            margin-right: 8px;
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+
+        .text-info {
+            color: #17a2b8 !important;
             border-radius: 5px;
             border: 1px solid #e9ecef;
         }
@@ -240,7 +312,7 @@
         <div class="report-header">
             <img src="https://vieiradireito.digital/wp-content/uploads/2022/08/Vieira-Direito-Digital-Fundo-Transparente-1.png" alt="Vieira Direito Digital">
             <h1><i class="fas fa-search-dollar"></i> FTM - RELATÓRIO DE ANÁLISE</h1>
-            <p class="text-white">Análise do domínio: <strong>{{ dominio_analisado }}</strong></p>
+            <p class="subtitle">Análise do domínio: <strong>{{ dominio_analisado }}</strong></p>
         </div>
 
         <div class="section">
@@ -318,7 +390,20 @@
                     como número de identificação do usuário.
                 </p>
                 
-                <div class="code-block pre">{{ ids }}</div>
+                {% if ids %}
+                    <div class="ids-container">
+                        {% for id_item in ids %}
+                            <div class="id-item">
+                                <i class="fas fa-tag text-primary"></i>
+                                <span class="id-text">{{ id_item }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Nenhum código de identificação foi encontrado.
+                    </div>
+                {% endif %}
             </div>
         </div>
 

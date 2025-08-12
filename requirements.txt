@@ -7,6 +7,8 @@ pytz==2021.1
 # Web Scraping
 beautifulsoup4==4.12.2
 requests==2.31.0
+requests[security]==2.31.0
+urllib3==2.0.7
 cloudscraper==1.2.71
 selenium==4.15.0
 undetected-chromedriver==3.5.4
@@ -26,6 +28,8 @@ texttable==1.7.0
 validators==0.22.0
 ntplib>=0.3.4
 decorator==5.1.1
+pytz>=2021.1
+random2==1.0.1
 
 # Compression
 gzip2==0.1.0

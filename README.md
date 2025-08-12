@@ -15,11 +15,16 @@ Com o fito de auxiliar as autoridades brasileiras e as vítimas, desenvolvemos o
 ### 🎯 Funcionalidades
 
 - **Análise de Domínios**: Informações sobre registro, DNS e hospedagem
+- **Descoberta de Subdomínios**: Busca paralela e otimizada por subdomínios ativos
 - **Extração de Links**: Coleta todos os links internos e externos do site
 - **Detecção de Tecnologias**: Identifica frameworks, CMS, bibliotecas e serviços utilizados
 - **Extração de Contatos**: Localiza emails e telefones disponíveis publicamente
 - **Análise de IDs**: Detecta códigos de rastreamento (Google Analytics, Facebook Pixel, etc.)
-- **Bypass Cloudflare**: Suporte avançado para contornar proteções anti-bot
+- **Certificados SSL**: Verificação segura e análise detalhada de certificados
+- **Registros DNS**: Consulta otimizada com múltiplos resolvers
+- **Horário NTP**: Sincronização com servidores NTP brasileiros
+- **Sistema de Logs**: Logging profissional com diferentes níveis de detalhamento
+- **Performance Otimizada**: Paralelização e retry automático para maior eficiência
 
 ### ⚖️ Aspectos Legais
 
@@ -133,6 +138,43 @@ Encontrou um bug? Por favor, abra uma [issue](https://github.com/seu-usuario/ftm
 - Passos para reproduzir
 - Ambiente (SO, versão do Python, etc.)
 - Screenshots (se aplicável)
+
+## 🔄 Melhorias Recentes (v2.0)
+
+O módulo `analyze.py` foi completamente refatorado com as seguintes melhorias:
+
+### 🚀 Performance e Confiabilidade
+- **Paralelização**: Busca de subdomínios agora utiliza `ThreadPoolExecutor` para execução paralela
+- **Requests Library**: Substituição do `urllib` pela biblioteca `requests` para maior robustez
+- **Retry Strategy**: Implementação de retry automático para falhas temporárias
+- **DNS Otimizado**: Consultas DNS otimizadas com múltiplos resolvers
+
+### 🛡️ Segurança
+- **SSL Seguro**: Verificação adequada de certificados SSL por padrão
+- **Fallback SSL**: Tratamento inteligente para certificados inválidos
+- **Rate Limiting**: Delays inteligentes para evitar sobrecarga de servidores
+- **User-Agent Rotation**: Rotação de User-Agents para evitar bloqueios
+
+### 📊 Logging e Monitoramento
+- **Sistema de Logs**: Implementação de logging profissional com diferentes níveis
+- **Arquivo de Log**: Logs salvos automaticamente em `ftm_analysis.log`
+- **Debugging**: Informações detalhadas para troubleshooting
+
+### 🌐 Timezone e NTP
+- **Timezone Brasileiro**: Conversão correta para o fuso horário de São Paulo
+- **Fallback Local**: Uso do horário local quando NTP não está disponível
+- **Múltiplos Servidores**: Tentativa com vários servidores NTP brasileiros
+
+### 🐛 Correções de Bugs
+- **Sintaxe Corrigida**: Correção da vírgula faltante na lista de subdomínios
+- **Importações Limpas**: Remoção de importações duplicadas e reorganização
+- **Tratamento de Erros**: Melhor tratamento de exceções e casos extremos
+- **Compatibilidade**: Melhor compatibilidade entre diferentes versões de dependências
+
+### 📚 Documentação
+- **Docstrings**: Adição de docstrings completas em todas as funções
+- **Type Hints**: Documentação de tipos de parâmetros e retornos
+- **Exemplos**: Exemplos práticos de uso das funções
 
 ## 📄 Licença
 
