@@ -4,24 +4,305 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTM - Follow The Money</title>
 
     {% bootstrap_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     {% bootstrap_javascript %}
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        .form-container {
+            padding: 20px;
+            background-color: #fff6f0;
+            border-radius: 8px;
+        }
+        .btn-primary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #5a6268;
+            border-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .features {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .feature {
+            text-align: center;
+            width: 30%;
+            margin-bottom: 20px;
+        }
+        .feature i {
+            font-size: 40px;
+            color: #ff6900;
+            margin-bottom: 15px;
+        }
+        .feature h3 {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .feature p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        /* Loading Bar Styles */
+        .loading-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .loading-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .attempt-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .attempt-item {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .attempt-item.pending {
+            color: #6c757d;
+            background: #f8f9fa;
+        }
+        
+        .attempt-item.processing {
+            color: #007bff;
+            background: #e3f2fd;
+            border-color: #007bff;
+        }
+        
+        .attempt-item.success {
+            color: #28a745;
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .attempt-item.failed {
+            color: #dc3545;
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .attempt-icon {
+            margin-right: 8px;
+            width: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            .feature {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container main-container">
+        <div class="header">
+            <img src="https://vieiradireito.digital/wp-content/uploads/2022/08/Vieira-Direito-Digital-Fundo-Transparente-1.png" alt="Vieira Direito Digital" style="max-height: 80px; margin-bottom: 20px;">
+            <h1><i class="fas fa-search-dollar"></i> FTM - Follow The Money</h1>
+            <p>Ferramenta para análise de domínios e identificação de autoria</p>
+        </div>
+        
         {% bootstrap_messages %}
 
-        <form action="{% url 'index' %}" method="post" class="form">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            {% buttons %}
-                <button type="submit" class="btn btn-primary">
-                    Enviar
-                </button>
-            {% endbuttons %}
-        </form>
+        <div class="form-container">
+            <form action="{% url 'index' %}" method="post" class="form" id="analysisForm">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                {% buttons %}
+                    <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                        <i class="fas fa-search"></i> Analisar Domínio
+                    </button>
+                {% endbuttons %}
+            </form>
+            
+            <!-- Loading Container -->
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-title">
+                    <i class="fas fa-shield-alt"></i> Contornando Proteções Cloudflare
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <ul class="attempt-list" id="attemptList">
+                    <li class="attempt-item pending" id="attempt1">
+                        <i class="fas fa-clock attempt-icon"></i>
+                        <span>FlareSolverr (Solução Premium 2025)</span>
+                    </li>
+                    <li class="attempt-item pending" id="attempt2">
+                        <i class="fas fa-clock attempt-icon"></i>
+                        <span>Requests-HTML (Navegador Estável)</span>
+                    </li>
+                    <li class="attempt-item pending" id="attempt3">
+                        <i class="fas fa-clock attempt-icon"></i>
+                        <span>Undetected-Chrome (Bypass Stealth)</span>
+                    </li>
+                    <li class="attempt-item pending" id="attempt4">
+                        <i class="fas fa-clock attempt-icon"></i>
+                        <span>Cloudscraper (Bypass Avançado)</span>
+                    </li>
+                    <li class="attempt-item pending" id="attempt5">
+                        <i class="fas fa-clock attempt-icon"></i>
+                        <span>Simulação de Navegador Chrome</span>
+                    </li>
+                    <li class="attempt-item pending" id="attempt6">
+                        <i class="fas fa-clock attempt-icon"></i>
+                        <span>Simulação de Navegador Firefox</span>
+                    </li>
+                    <li class="attempt-item pending" id="attempt7">
+                        <i class="fas fa-clock attempt-icon"></i>
+                        <span>Técnicas Anti-403 Avançadas</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-server"></i>
+                <h3>Análise de Servidores</h3>
+                <p>Identifica servidores e subdomínios relacionados ao domínio alvo.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-id-card"></i>
+                <h3>Códigos de Identificação</h3>
+                <p>Localiza códigos de rastreamento e identificação de serviços.</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-link"></i>
+                <h3>Análise de Links</h3>
+                <p>Mapeia conexões e links presentes no site analisado.</p>
+            </div>
+        </div>
     </div>
-
+    
+    <script>
+        document.getElementById('analysisForm').addEventListener('submit', function(e) {
+            // Mostra a barra de loading
+            document.getElementById('loadingContainer').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisando...';
+            
+            // Simula o progresso das tentativas
+            let currentAttempt = 1;
+            let progress = 0;
+            
+            const progressInterval = setInterval(() => {
+                if (currentAttempt <= 7) {
+                    // Atualiza o item atual para "processing"
+                    const currentItem = document.getElementById(`attempt${currentAttempt}`);
+                    currentItem.className = 'attempt-item processing';
+                    currentItem.querySelector('.attempt-icon').className = 'fas fa-spinner fa-spin attempt-icon';
+                    
+                    // Atualiza a barra de progresso
+                    progress = (currentAttempt / 7) * 100;
+                    document.getElementById('progressFill').style.width = progress + '%';
+                    
+                    // Simula tempo de processamento
+                    setTimeout(() => {
+                        if (currentAttempt <= 7) {
+                            // Marca como concluído (pode ser sucesso ou falha)
+                            const item = document.getElementById(`attempt${currentAttempt}`);
+                            const isSuccess = Math.random() > 0.3; // 70% chance de sucesso simulado
+                            
+                            if (isSuccess) {
+                                item.className = 'attempt-item success';
+                                item.querySelector('.attempt-icon').className = 'fas fa-check-circle attempt-icon';
+                            } else {
+                                item.className = 'attempt-item failed';
+                                item.querySelector('.attempt-icon').className = 'fas fa-times-circle attempt-icon';
+                            }
+                        }
+                    }, Math.random() * 2000 + 1000); // 1-3 segundos
+                    
+                    currentAttempt++;
+                } else {
+                    clearInterval(progressInterval);
+                    
+                    // Finaliza a animação
+                    setTimeout(() => {
+                        document.getElementById('loadingContainer').style.display = 'none';
+                        document.getElementById('submitBtn').disabled = false;
+                        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-search"></i> Analisar Domínio';
+                    }, 1000);
+                }
+            }, 3000); // Nova tentativa a cada 3 segundos
+        });
+    </script>
 </body>

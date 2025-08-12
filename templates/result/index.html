@@ -2,145 +2,387 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTM - Relatório de Análise</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    
     <style type="text/css">
-        *
-        {
-            margin: 0;
-            padding: 0;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
         }
 
-        .container
-        {
-            width: 1024px;
+        .container {
+            max-width: 1200px;
             margin: 30px auto;
-
-            font: 12pt/1.4em sans-serif;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
         }
 
-        h1
-        {
-            background: #5b9bd5;
+        .report-header {
+            background: linear-gradient(135deg, #ff6900, #ff9248);
             color: #fff;
-
-            font-size: 13pt;
-            padding: 10px 0;
-
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 30px;
             text-align: center;
         }
 
-        h2
-        {
-            background: #deeaf6;
-
-            font-size: 13pt;
-            font-weight: bold;
-            padding: 10px 0;
+        .report-header img {
+            max-height: 60px;
+            margin-bottom: 15px;
+            filter: brightness(0) invert(1);
         }
 
-        h3
-        {
-            border-top: 1px solid #5b9bd5;
-            color: #5b9bd5;
-
-            padding: 10px 0;
-
-            text-align: center;
+        .report-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
 
-        p
-        {
-            margin: 10px 0;
+        .section {
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        table
-        {
+        .section-header {
+            background: #ff6900;
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .section-content {
+            background: white;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-top: none;
+        }
+
+        .subsection-header {
+            background: #f1f9ff;
+            color: #2c3e50;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .subsection-header i {
+            margin-right: 10px;
+        }
+
+        p {
+            margin: 15px 0;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        table {
+            width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
-        }
-        table, tr, td
-        {
-            border: 1px solid #deeaf6;
-            font-size: 11pt;
-            font-weight: bold;
-        }
-        td
-        {
-            padding: 0 2px;
+            margin: 15px 0;
+            background-color: white;
         }
 
-        .center-narrow
-        {
-            margin: 5px auto;
-            width: 480px;
-        }
-        .center-wide
-        {
-            margin: 5px auto;
-            width: 720px;
+        table, th, td {
+            border: 1px solid #e9ecef;
         }
 
-        .pre
-        {
-            white-space: pre;
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f1f9ff;
+        }
+
+        .center-narrow {
+            margin: 15px auto;
+            width: 100%;
+            max-width: 600px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .center-wide {
+            margin: 15px auto;
+            width: 100%;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        .pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .server-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #ff6900;
+        }
+
+        .server-info-header {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .server-info-header i {
+            margin-right: 8px;
+            color: #ff6900;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .badge-primary {
+            background-color: #ff6900;
+            color: white;
+        }
+
+        .badge-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .badge-info {
+            background-color: #ff6900;
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 15px;
+            }
+            
+            .center-narrow, .center-wide {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>FTM - RELATÓRIO DE INFORMAÇÕES</h1>
-
-        <p>Verificação das Informações existentes e publicamente disponíveis acerca do domínio {{ dominio_analisado }}, com a finalidade de identificar elementos que possam levar à identificação da autoria, tais como: responsável pelo registro do nome de domínio, empresa responsável pela hospedagem e códigos de identificação únicos de serviços agregados ao site.</p>
-        <p>Relatório gerado pelo software Follow to The Money - FTM, com informações publicamente disponíveis na rede mundial de computadores acerca do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido em Python 3.5, com código fonte disponível em http://github.com/tocvieira/ftm</p>
-
-        <h2>INFORMAÇÕES PRELIMINARES</h2>
-
-        <table>
-            <tr>
-                <td>Domínio Analisado</td>
-                <td>{{ dominio_analisado }}</td>
-            </tr>
-            <tr>
-                <td>Hora Legal Brasileira da Execução (ntp.br)</td>
-                <td>{{ ntpbr_time }}</td>
-            </tr>
-            <tr>
-                <td>Versão do FTM</td>
-                <td>1.0</td>
-            </tr>
-        </table>
-
-        <h2>INFORMAÇÕES SOBRE O REGISTRO DO NOME DE DOMÍNIO</h2>
-
-        <div class="center-narrow pre">{{ whois }}</div>
-
-        <h2>INFORMAÇÔES SOBRE A HOSPEDAGEM</h2>
-
-
-        <h3>SUB-DOMÍNIOS LOCALIZADOS</h3>
-
-        <div class="center-wide">
-            {% for k, v, w in servidores %}
-                <div><b>{{ k }} : {{ v }}</b></div>
-
-                <div class="pre" style="font-family: monospace;">{{ w }}</div>
-            {% endfor %}
+        <div class="report-header">
+            <img src="https://vieiradireito.digital/wp-content/uploads/2022/08/Vieira-Direito-Digital-Fundo-Transparente-1.png" alt="Vieira Direito Digital">
+            <h1><i class="fas fa-search-dollar"></i> FTM - RELATÓRIO DE ANÁLISE</h1>
+            <p class="text-white">Análise do domínio: <strong>{{ dominio_analisado }}</strong></p>
         </div>
 
-        <h1>CÓDIGOS DE IDENTIFICAÇÃO LOCALIZADOS:</h1>
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-info-circle"></i> Sobre este Relatório
+            </div>
+            <div class="section-content">
+                <p>Verificação das informações existentes e publicamente disponíveis acerca do domínio <strong>{{ dominio_analisado }}</strong>, com a finalidade de identificar elementos que possam levar à identificação da autoria, tais como: responsável pelo registro do nome de domínio, empresa responsável pela hospedagem e códigos de identificação únicos de serviços agregados ao site.</p>
+                <p>Relatório gerado pelo software <strong>Follow The Money (FTM)</strong>, com informações publicamente disponíveis na rede mundial de computadores acerca do domínio analisado. O FTM é um software livre, licenciado em GPL 3 e desenvolvido em Python 3.5, com código fonte disponível em <a href="http://github.com/tocvieira/ftm" target="_blank"><i class="fab fa-github"></i> github.com/tocvieira/ftm</a></p>
+            </div>
+        </div>
 
-        <p>Para utilizar serviços de terceiros que, por exemplo, gerem estatísticas ou remunerem por publicidade
-        veiculada no site, é necessário incluir no código fonte do website sequências únicas de caracteres. Esta
-        sequência de caracteres prova junto ao prestador de serviço a titularidade do website, também servindo
-        como número de identificação do usuário.</p>
-        <p>Abaixo segue a lista dos Códigos de Identificação Localizados:</p>
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-clipboard-list"></i> Informações Preliminares
+            </div>
+            <div class="section-content">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th><i class="fas fa-globe"></i> Domínio Analisado</th>
+                            <td>{{ dominio_analisado }}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="far fa-clock"></i> Hora Legal Brasileira da Execução (ntp.br)</th>
+                            <td>{{ ntpbr_time }}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-code-branch"></i> Versão do FTM</th>
+                            <td>1.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <div class="pre">{{ ids }}</div>
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-id-card"></i> Informações sobre o Registro do Nome de Domínio
+            </div>
+            <div class="section-content">
+                <div class="code-block pre">{{ whois }}</div>
+            </div>
+        </div>
 
-        <h1>LINKS ENCONTRADOS</h1>
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-server"></i> Informações sobre a Hospedagem
+            </div>
+            <div class="section-content">
+                <div class="subsection-header">
+                    <i class="fas fa-sitemap"></i> Sub-domínios Localizados
+                </div>
+                
+                {% for k, v, w in servidores %}
+                <div class="server-info">
+                    <div class="server-info-header">
+                        <i class="fas fa-network-wired"></i> <span class="badge badge-primary">{{ k }}</span> : {{ v }}
+                    </div>
+                    <div class="pre">{{ w }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-        <div class="pre">{{ links_encontrados }}</div>
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-fingerprint"></i> Códigos de Identificação Localizados
+            </div>
+            <div class="section-content">
+                <p>
+                    <i class="fas fa-info-circle text-info"></i> Para utilizar serviços de terceiros que, por exemplo, gerem estatísticas ou remunerem por publicidade
+                    veiculada no site, é necessário incluir no código fonte do website sequências únicas de caracteres. Esta
+                    sequência de caracteres prova junto ao prestador de serviço a titularidade do website, também servindo
+                    como número de identificação do usuário.
+                </p>
+                
+                <div class="code-block pre">{{ ids }}</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-laptop-code"></i> Tecnologias Detectadas
+            </div>
+            <div class="section-content">
+                <p>
+                    <i class="fas fa-info-circle text-info"></i> Tecnologias, frameworks e bibliotecas identificadas no código fonte do site. Estas informações podem ajudar a identificar a infraestrutura técnica utilizada pelo site.
+                </p>
+                
+                <div class="center-wide">
+                    {% if technologies %}
+                        {% for tech in technologies %}
+                            <span class="badge badge-primary">{{ tech }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p>Nenhuma tecnologia específica foi detectada.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-link"></i> Links Encontrados
+            </div>
+            <div class="section-content">
+                <div class="code-block pre">{{ links_encontrados }}</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-lock"></i> Informações de Certificado SSL
+            </div>
+            <div class="section-content">
+                <p>
+                    <i class="fas fa-info-circle text-info"></i> O certificado SSL é um componente de segurança que garante a criptografia da comunicação entre o navegador e o servidor web, além de validar a identidade do site.
+                </p>
+                <div class="code-block pre">{{ ssl_info }}</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <i class="fas fa-network-wired"></i> Registros DNS
+            </div>
+            <div class="section-content">
+                <p>
+                    <i class="fas fa-info-circle text-info"></i> Os registros DNS (Domain Name System) são responsáveis por traduzir nomes de domínio em endereços IP e fornecer informações sobre serviços associados ao domínio.
+                </p>
+                <div class="code-block pre">{{ dns_info }}</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><i class="fas fa-shield-alt"></i> FTM - Follow The Money | Desenvolvido por Thiago Oliveira Castro Vieira</p>
+            <p><small>Todas as informações coletadas são de domínio público e foram obtidas por meios legais.</small></p>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
