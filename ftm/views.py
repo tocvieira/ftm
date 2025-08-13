@@ -198,9 +198,10 @@ def index(request):
                 ntpbr_time, whois, ssl_info, dns_info, server_info, ids_list, links_list, technologies, contact_info = result
                 
                 # Verifica se é necessária análise manual (Cloudflare/403 detectado)
-                if isinstance(ids_list, list) and 'MANUAL_ANALYSIS_REQUIRED' in ids_list:
-                    # Remove o indicador da lista de IDs
-                    ids_list = [id_item for id_item in ids_list if id_item != 'MANUAL_ANALYSIS_REQUIRED']
+                if isinstance(ids_list, str) and 'MANUAL_ANALYSIS_REQUIRED' in ids_list:
+                    # Remove o indicador da string de IDs
+                    ids_lines = ids_list.split('\n')
+                    ids_list = '\n'.join([line for line in ids_lines if line != 'MANUAL_ANALYSIS_REQUIRED'])
                     
                     # Cria o formulário para entrada manual
                     manual_form = ManualSourceForm(initial={'domain_name': domain_name})
@@ -210,7 +211,7 @@ def index(request):
                         'domain': domain_name,
                         'manual_form': manual_form,
                         'failed_result': {
-                            'ids': ids_list,
+                            'ids': ids_list.split('\n') if ids_list else [],
                             'links': links_list,
                             'technologies': technologies,
                             'contact_info': contact_info

@@ -173,7 +173,9 @@
         <div class="failed-attempts">
             <h4><i class="fas fa-info-circle"></i> Tentativas Realizadas:</h4>
             {% for attempt in failed_result.ids %}
-                <div>• {{ attempt }}</div>
+                {% if attempt.strip %}
+                    <div>• {{ attempt }}</div>
+                {% endif %}
             {% endfor %}
         </div>
         {% endif %}

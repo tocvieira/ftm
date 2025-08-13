@@ -582,31 +582,36 @@ def get_ids(url):
             html = try_access_url_requests(url)
             soup = BeautifulSoup(html, 'html.parser')
             logger.info(f"Página {url} acessada com sucesso")
+            
+            # Verifica se a página retornada é uma página de proteção Cloudflare
+            cloudflare_protection_indicators = [
+                'checking your browser',
+                'ddos protection by cloudflare',
+                'attention required! | cloudflare',
+                'ray id:',
+                'cloudflare ray id',
+                'cf-ray',
+                'please enable cookies',
+                'enable javascript and cookies',
+                'security check',
+                'browser integrity check'
+            ]
+            
+            html_lower = html.lower()
+            is_cloudflare_protection = any(indicator in html_lower for indicator in cloudflare_protection_indicators)
+            
+            if is_cloudflare_protection:
+                logger.warning(f"Página de proteção Cloudflare detectada para {url}. Análise manual necessária.")
+                ids.append("MANUAL_ANALYSIS_REQUIRED")
+                ids.append(f"⚠️ Proteção Cloudflare detectada na página - Análise manual necessária")
+                return "\n".join(ids), "\n".join(links), technologies, contact_info
         except requests.exceptions.HTTPError as e:
-            # Se for erro 403 (Forbidden), tenta com mais técnicas anti-bloqueio
+            # Se for erro 403 (Forbidden), sempre solicita análise manual
             if e.response.status_code == 403:
-                try:
-                    # Tenta com um referrer de um grande site
-                    session.headers.update({'Referer': 'https://www.google.com/'})
-                    html = try_access_url_requests(url)
-                    soup = BeautifulSoup(html, 'html.parser')
-                    logger.info(f"Página {url} acessada com referrer")
-                except Exception:
-                    # Tenta com HTTPS se HTTP falhar
-                    if url.startswith('http://') and not url.startswith('https://'):
-                        https_url = 'https://' + url[7:]
-                        try:
-                            html = try_access_url_requests(https_url)
-                            soup = BeautifulSoup(html, 'html.parser')
-                            logger.info(f"Página {https_url} acessada via HTTPS")
-                        except Exception as e2:
-                            logger.error(f"Erro ao acessar {https_url}: {str(e2)}")
-                            ids.append(f"Erro ao acessar o site (HTTPS): {str(e2)}")
-                            return "\n".join(ids), "\n".join(links), technologies, contact_info
-                    else:
-                        logger.error(f"Erro 403 para {url}: {str(e)}")
-                        ids.append(f"Erro ao acessar o site (403 Forbidden): {str(e)}")
-                        return "\n".join(ids), "\n".join(links), technologies, contact_info
+                logger.warning(f"Erro 403 Forbidden detectado para {url}. Análise manual necessária.")
+                ids.append("MANUAL_ANALYSIS_REQUIRED")
+                ids.append(f"⚠️ Erro 403 Forbidden - Site bloqueado, análise manual necessária")
+                return "\n".join(ids), "\n".join(links), technologies, contact_info
             # Se não for 403, tenta com HTTPS
             elif url.startswith('http://') and not url.startswith('https://'):
                 https_url = 'https://' + url[7:]
@@ -614,18 +619,83 @@ def get_ids(url):
                     html = try_access_url_requests(https_url)
                     soup = BeautifulSoup(html, 'html.parser')
                     logger.info(f"Página {https_url} acessada via HTTPS após falha HTTP")
+                    
+                    # Verifica Cloudflare também no HTTPS
+                    html_lower = html.lower()
+                    cloudflare_protection_indicators = [
+                        'checking your browser',
+                        'ddos protection by cloudflare',
+                        'attention required! | cloudflare',
+                        'ray id:',
+                        'cloudflare ray id',
+                        'cf-ray',
+                        'please enable cookies',
+                        'enable javascript and cookies',
+                        'security check',
+                        'browser integrity check'
+                    ]
+                    
+                    if any(indicator in html_lower for indicator in cloudflare_protection_indicators):
+                        logger.warning(f"Proteção Cloudflare detectada via HTTPS para {https_url}. Análise manual necessária.")
+                        ids.append("MANUAL_ANALYSIS_REQUIRED")
+                        ids.append(f"⚠️ Proteção Cloudflare detectada (HTTPS) - Análise manual necessária")
+                        return "\n".join(ids), "\n".join(links), technologies, contact_info
+                        
                 except Exception as e2:
-                    logger.error(f"Erro ao acessar {https_url}: {str(e2)}")
-                    ids.append(f"Erro ao acessar o site (HTTPS): {str(e2)}")
-                    return "\n".join(ids), "\n".join(links), technologies, contact_info
+                    error_msg = str(e2).lower()
+                    # Verifica se o erro do HTTPS também indica Cloudflare
+                    if any(indicator in error_msg for indicator in ['cloudflare', 'cf-ray', 'ray id']):
+                        logger.warning(f"Proteção Cloudflare detectada no erro HTTPS para {https_url}. Análise manual necessária.")
+                        ids.append("MANUAL_ANALYSIS_REQUIRED")
+                        ids.append(f"⚠️ Proteção Cloudflare detectada - Análise manual necessária")
+                        return "\n".join(ids), "\n".join(links), technologies, contact_info
+                    else:
+                        logger.error(f"Erro ao acessar {https_url}: {str(e2)}")
+                        ids.append(f"Erro ao acessar o site (HTTPS): {str(e2)}")
+                        return "\n".join(ids), "\n".join(links), technologies, contact_info
             else:
                 logger.error(f"Erro HTTP para {url}: {str(e)}")
+                # Verifica se o erro HTTP indica Cloudflare
+                error_response = getattr(e.response, 'text', str(e)).lower()
+                if any(indicator in error_response for indicator in ['cloudflare', 'cf-ray', 'ray id', 'ddos protection']):
+                    logger.warning(f"Proteção Cloudflare detectada no erro HTTP para {url}. Análise manual necessária.")
+                    ids.append("MANUAL_ANALYSIS_REQUIRED")
+                    ids.append(f"⚠️ Proteção Cloudflare detectada - Análise manual necessária")
+                    return "\n".join(ids), "\n".join(links), technologies, contact_info
+                else:
+                    ids.append(f"Erro ao acessar o site: {str(e)}")
+                    return "\n".join(ids), "\n".join(links), technologies, contact_info
+        except Exception as e:
+            error_msg = str(e).lower()
+            logger.error(f"Erro geral ao acessar {url}: {str(e)}")
+            
+            # Detecta proteção Cloudflare ou erro 403/bloqueio
+            cloudflare_indicators = [
+                'cloudflare',
+                'cf-ray',
+                'attention required',
+                'checking your browser',
+                'ddos protection',
+                'security check',
+                'ray id',
+                'cloudflare ray id'
+            ]
+            
+            is_cloudflare_blocked = (
+                '403' in error_msg or 
+                'forbidden' in error_msg or
+                'access denied' in error_msg or
+                any(indicator in error_msg for indicator in cloudflare_indicators)
+            )
+            
+            if is_cloudflare_blocked:
+                logger.warning(f"Proteção Cloudflare/403 detectada para {url}. Análise manual necessária.")
+                ids.append("MANUAL_ANALYSIS_REQUIRED")
+                ids.append(f"⚠️ Proteção Cloudflare/403 detectada - Análise manual necessária")
+                return "\n".join(ids), "\n".join(links), technologies, contact_info
+            else:
                 ids.append(f"Erro ao acessar o site: {str(e)}")
                 return "\n".join(ids), "\n".join(links), technologies, contact_info
-        except Exception as e:
-            logger.error(f"Erro geral ao acessar {url}: {str(e)}")
-            ids.append(f"Erro ao acessar o site: {str(e)}")
-            return "\n".join(ids), "\n".join(links), technologies, contact_info
         
         # Extrai o domínio base da URL para identificar links internos/externos
         base_domain = url.split('//')[-1].split('/')[0]
